@@ -25,20 +25,12 @@ passport.use(
         ) {
           return done(`User is ${isUserExist.isActive}`);
         }
-        if (isUserExist.isDeleted) {
-          return done("User is deleted");
+
+        // if user isDeleted === false it would return true, so there is "not" sign:
+        if (!isUserExist.isDeleted) {  
+          return done("User is deleted"); 
         }
 
-        const isGoogleAuthenticated = isUserExist.auths.some(
-          (providerObjects) => providerObjects.provider == "google"
-        );
-
-        if (isGoogleAuthenticated && !isUserExist.password) {
-          return done(null, false, {
-            message:
-              "You have authenticated through Google. So if you want to login with credentials, then at first login with google and set a password for your Gmail and then you can login with email and password.",
-          });
-        }
 
         const isPasswordMatched = await bcryptjs.compare(
           password as string,
