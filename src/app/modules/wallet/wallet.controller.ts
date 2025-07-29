@@ -1,14 +1,22 @@
-import { User } from "./../user/user.model";
-import express from "express";
-import { checkAuth } from "../../middlewares/checkAuth";
-import { validateRequest } from "../../middlewares/validateRequest";
-import { Role } from "../user/user.interface";
+import { Request, Response, NextFunction } from "express";
+import httpStatus from "http-status-codes";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import { WalletServices } from "./wallet.service";
 
-const router = express.Router();
+const addMoneyToWallet = catchAsync(async (req: Request, res: Response) => {
+  const { userId, amount } = req.body;
 
-router.post(
-  "/create",
-  checkAuth(Role.USER, Role.AGENT),
-  validateRequest(createWalletZodSchema),
-  WalletController.createWallet
-);
+  const result = await WalletServices.addMoneyWallet({ userId, amount });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Money added to wallet successfully",
+    data: result,
+  });
+});
+
+export const WalletController = {
+  addMoneyToWallet,
+};

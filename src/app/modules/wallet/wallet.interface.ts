@@ -6,8 +6,7 @@ export enum WalletStatus {
 }
 
 export interface IWallet {
-  _id?: Types.ObjectId;
-  owner: Types.ObjectId; 
+  owner: Types.ObjectId;
   balance: number;
   status: WalletStatus;
   createdAt?: Date;
