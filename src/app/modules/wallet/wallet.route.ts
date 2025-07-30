@@ -14,4 +14,11 @@ router.post(
   WalletController.addMoneyToWallet
 );
 
+router.post(
+  "/withdraw-money",
+  checkAuth(Role.USER),
+  validateRequest(addMoneyToWalletZodSchema),
+  WalletController.addMoneyToWallet
+);
+
 export const walletRoutes = router;
