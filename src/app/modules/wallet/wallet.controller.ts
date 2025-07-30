@@ -4,6 +4,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { WalletServices } from "./wallet.service";
 import { JwtPayload } from "jsonwebtoken";
+import { Wallet } from "./wallet.model";
 
 const addMoneyToWallet = catchAsync(async (req: Request, res: Response) => {
   const { userId, amount } = req.body;
@@ -65,8 +66,20 @@ const sendMoneyUserToUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllWallets = catchAsync(async (req: Request, res: Response) => {
+  const allWallets = await Wallet.find();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All Wallets Retrived Successfully",
+    data: allWallets,
+  });
+});
+
 export const WalletController = {
   addMoneyToWallet,
   withdrawMoneyFromWallet,
   sendMoneyUserToUser,
+  getAllWallets,
 };

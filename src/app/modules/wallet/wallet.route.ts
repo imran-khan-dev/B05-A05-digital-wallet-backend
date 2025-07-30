@@ -32,4 +32,10 @@ router.post(
   WalletController.sendMoneyUserToUser
 );
 
+router.get(
+  "/all-wallets",
+  checkAuth(Role.ADMIN),
+  WalletController.getAllWallets
+);
+
 export const walletRoutes = router;

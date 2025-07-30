@@ -14,12 +14,13 @@ router.post(
 );
 
 router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
+router.get("/all-agents", checkAuth(Role.ADMIN), UserControllers.getAllAgents);
+
 
 router.post(
   "/transaction-history",
   validateRequest(createUserZodSchema),
   UserControllers.createUser
 );
-
 
 export const UserRoutes = router;
