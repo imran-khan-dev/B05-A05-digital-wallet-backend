@@ -39,7 +39,27 @@ const withdrawMoneyFromWallet = catchAsync(
   }
 );
 
+const sendMoneyUserToUser = catchAsync(async (req: Request, res: Response) => {
+  const { recipientEmail, amount } = req.body;
+  const decodedToken = req.user as JwtPayload;
+  const userId = decodedToken.userId;
+
+  const result = await WalletServices.sendMoneyUserToUser({
+    userId,
+    recipientEmail,
+    amount,
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Money sent successfully",
+    data: result,
+  });
+});
+
 export const WalletController = {
   addMoneyToWallet,
   withdrawMoneyFromWallet,
+  sendMoneyUserToUser,
 };

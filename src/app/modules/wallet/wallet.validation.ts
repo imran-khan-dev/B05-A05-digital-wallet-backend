@@ -15,17 +15,6 @@ export const addMoneyToWalletZodSchema = z.object({
     .positive({ message: "Amount must be a positive number." }),
 });
 
-export const updateWalletZodSchema = z.object({
-  balance: z
-    .number()
-    .min(0, { message: "Balance cannot be negative." })
-    .optional(),
-
-  status: z
-    .enum(Object.values(WalletStatus) as [string, ...string[]])
-    .optional(),
-});
-
 export const withdrawMoneyFromWalletZodSchema = z.object({
   amount: z
     .number()
@@ -36,4 +25,16 @@ export const withdrawMoneyFromWalletZodSchema = z.object({
     .string()
     .email("Invalid agent email")
     .min(1, { message: "Agent email is required" }),
+});
+
+export const sendMoneyUserToUserZodSchema = z.object({
+  recipientEmail: z
+    .string()
+    .email("Invalid recipient email")
+    .min(1, { message: "Recipient email is required" }),
+
+  amount: z
+    .number()
+    .positive("Amount must be greater than 0")
+    .refine((val) => !!val, { message: "Amount is required" }),
 });
