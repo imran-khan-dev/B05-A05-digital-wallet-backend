@@ -2,7 +2,7 @@ import { Transaction } from "./../transaction/transaction.model";
 import httpStatus from "http-status-codes";
 import { User } from "./user.model";
 import AppError from "../../errorHelpers/AppError";
-import { IAuthProvider, IUser, Role } from "./user.interface";
+import { IAuthProvider, IsActive, IUser, Role } from "./user.interface";
 import bcryptjs from "bcryptjs";
 import { envVars } from "../../config/env";
 import { Wallet } from "../wallet/wallet.model";
@@ -78,6 +78,27 @@ const createUser = async (payload: Partial<IUser>) => {
   }
 };
 
+const updateAgentByAdmin = async (
+  agentId: string,
+  payload: {
+    isApproved?: boolean;
+    isActive?: IsActive;
+  }
+) => {
+  const agent = await User.findOneAndUpdate(
+    { _id: agentId, role: "AGENT" },
+    payload,
+    { new: true, runValidators: true }
+  );
+
+  if (!agent) {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent not found or not an agent");
+  }
+
+  return agent;
+};
+
 export const UserServices = {
   createUser,
+  updateAgentByAdmin,
 };

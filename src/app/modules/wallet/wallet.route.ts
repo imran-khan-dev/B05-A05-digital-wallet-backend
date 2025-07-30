@@ -5,6 +5,7 @@ import { Role } from "../user/user.interface";
 import {
   addMoneyToWalletZodSchema,
   sendMoneyUserToUserZodSchema,
+  updateWalletByAdminZodSchema,
   withdrawMoneyFromWalletZodSchema,
 } from "./wallet.validation";
 import { WalletController } from "./wallet.controller";
@@ -36,6 +37,13 @@ router.get(
   "/all-wallets",
   checkAuth(Role.ADMIN),
   WalletController.getAllWallets
+);
+
+router.patch(
+  "/update-wallet/:id",
+  checkAuth(Role.ADMIN),
+  validateRequest(updateWalletByAdminZodSchema),
+  WalletController.updateWallet
 );
 
 export const walletRoutes = router;

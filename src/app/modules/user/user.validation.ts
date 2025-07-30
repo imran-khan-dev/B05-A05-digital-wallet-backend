@@ -40,17 +40,12 @@ export const createUserZodSchema = z.object({
     .max(200, { message: "Address cannot exceed 200 characters." })
     .optional(),
 
-  role: z
-    .enum(Object.values(Role) as [string, ...string[]])
-    .optional(),
+  role: z.enum(Object.values(Role) as [string, ...string[]]).optional(),
 
-  isActive: z
-    .enum(Object.values(IsActive) as [string, ...string[]])
-    .optional(),
+  isActive: z.enum(Object.values(IsActive) as [string, ...string[]]).optional(),
 
   isApproved: z.boolean().optional(),
 });
-
 
 // Update User Validation
 export const updateUserZodSchema = z.object({
@@ -87,14 +82,16 @@ export const updateUserZodSchema = z.object({
     .max(200, { message: "Address cannot exceed 200 characters." })
     .optional(),
 
-  role: z
-    .enum(Object.values(Role) as [string, ...string[]])
-    .optional(),
+  role: z.enum(Object.values(Role) as [string, ...string[]]).optional(),
 
-  isActive: z
-    .enum(Object.values(IsActive) as [string, ...string[]])
-    .optional(),
+  isActive: z.enum(Object.values(IsActive) as [string, ...string[]]).optional(),
 
   isDeleted: z.boolean().optional(),
   isApproved: z.boolean().optional(),
+});
+
+// Update Agent Validation
+export const updateAgentByAdminZodSchema = z.object({
+  isApproved: z.boolean().optional(),
+  isActive: z.enum(["ACTIVE", "BLOCKED"]).optional(),
 });

@@ -77,9 +77,27 @@ const getAllWallets = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateWallet = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const payload = req.body;
+
+  const updatedWallet = await WalletServices.updateWalletByAdmin(
+    userId,
+    payload
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Wallet updated successfully",
+    data: updatedWallet,
+  });
+});
+
 export const WalletController = {
   addMoneyToWallet,
   withdrawMoneyFromWallet,
   sendMoneyUserToUser,
   getAllWallets,
+  updateWallet,
 };

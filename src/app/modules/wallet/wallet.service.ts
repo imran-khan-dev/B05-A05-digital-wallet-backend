@@ -253,8 +253,28 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
   }
 };
 
+const updateWalletByAdmin = async (
+  userId: string,
+  payload: {
+    status?: WalletStatus;
+  }
+) => {
+  const walletUpdated = await Wallet.findOneAndUpdate(
+    { owner: userId },
+    payload,
+    { new: true, runValidators: true }
+  );
+
+  if (!walletUpdated) {
+    throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
+  }
+
+  return walletUpdated;
+};
+
 export const WalletServices = {
   addMoneyWallet,
   withdrawMoneyFromWallet,
   sendMoneyUserToUser,
+  updateWalletByAdmin,
 };

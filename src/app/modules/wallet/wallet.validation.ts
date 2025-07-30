@@ -38,3 +38,8 @@ export const sendMoneyUserToUserZodSchema = z.object({
     .positive("Amount must be greater than 0")
     .refine((val) => !!val, { message: "Amount is required" }),
 });
+
+
+export const updateWalletByAdminZodSchema = z.object({
+  status: z.enum(["ACTIVE", "BLOCKED"]).optional(),
+});
