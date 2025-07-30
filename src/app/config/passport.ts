@@ -26,8 +26,7 @@ passport.use(
           return done(`User is ${isUserExist.isActive}`);
         }
 
-        // if user isDeleted === false it would return true, so there is "not" sign:
-        if (!isUserExist.isDeleted) {  
+        if (isUserExist.isDeleted) {  
           return done("User is deleted"); 
         }
 

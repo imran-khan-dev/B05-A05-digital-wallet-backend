@@ -25,3 +25,15 @@ export const updateWalletZodSchema = z.object({
     .enum(Object.values(WalletStatus) as [string, ...string[]])
     .optional(),
 });
+
+export const withdrawMoneyFromWalletZodSchema = z.object({
+  amount: z
+    .number()
+    .positive("Withdraw amount must be greater than 0")
+    .refine((val) => !!val, { message: "Withdraw amount is required" }),
+
+  agentEmail: z
+    .string()
+    .email("Invalid agent email")
+    .min(1, { message: "Agent email is required" }),
+});

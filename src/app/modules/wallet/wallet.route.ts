@@ -2,7 +2,10 @@ import express from "express";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { Role } from "../user/user.interface";
-import { addMoneyToWalletZodSchema } from "./wallet.validation";
+import {
+  addMoneyToWalletZodSchema,
+  withdrawMoneyFromWalletZodSchema,
+} from "./wallet.validation";
 import { WalletController } from "./wallet.controller";
 
 const router = express.Router();
@@ -17,8 +20,8 @@ router.post(
 router.post(
   "/withdraw-money",
   checkAuth(Role.USER),
-  validateRequest(addMoneyToWalletZodSchema),
-  WalletController.addMoneyToWallet
+  validateRequest(withdrawMoneyFromWalletZodSchema),
+  WalletController.withdrawMoneyFromWallet
 );
 
 export const walletRoutes = router;
