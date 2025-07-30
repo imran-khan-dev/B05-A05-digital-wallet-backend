@@ -220,10 +220,8 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
     await senderWallet.save({ session });
     await recipientWallet.save({ session });
 
-    // transaction record here...
-
     const transactionData: Partial<ITransaction> = {
-      type: TransactionType.CASH_OUT,
+      type: TransactionType.SEND_MONEY,
       amount,
       from: sender._id,
       to: recipient._id,

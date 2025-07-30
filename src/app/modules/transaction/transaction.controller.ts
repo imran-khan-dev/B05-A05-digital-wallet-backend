@@ -1,0 +1,45 @@
+import { Request, Response, NextFunction } from "express";
+import httpStatus from "http-status-codes";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import { TransactionServices } from "./transaction.service";
+import { Transaction } from "./transaction.model";
+
+const seeAllTransactionsHistory = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await Transaction.find();
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Transaction history retrieved successfully",
+      data: result,
+    });
+  }
+);
+
+const seeTransactionHistory = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const result = await TransactionServices.seeTransactionHistory({
+      userId,
+      page,
+      limit,
+    });
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Transaction history retrieved successfully",
+      data: result,
+    });
+  }
+);
+
+export const TransactionControllers = {
+  seeTransactionHistory,
+  seeAllTransactionsHistory,
+};

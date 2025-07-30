@@ -2,8 +2,9 @@ import { Document, Types } from "mongoose";
 
 export enum TransactionType {
   ADD = "add",  
-  SEND = "send", 
+  SEND_MONEY = "send", 
   CASH_IN = "cash-in", 
+  CASH_IN_BONUS = "cash-in-bonus",
   CASH_OUT = "cash-out", 
 }
 

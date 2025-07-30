@@ -57,7 +57,7 @@ const createUser = async (payload: Partial<IUser>) => {
     await Wallet.create([walletData], { session });
 
     const transactionData: Partial<ITransaction> = {
-      type: TransactionType.CASH_IN,
+      type: TransactionType.CASH_IN_BONUS,
       amount: 50,
       to: user[0]._id,
       status: TransactionStatus.COMPLETED,
