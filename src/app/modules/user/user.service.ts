@@ -1,3 +1,4 @@
+import { Transaction } from "./../transaction/transaction.model";
 import httpStatus from "http-status-codes";
 import { User } from "./user.model";
 import AppError from "../../errorHelpers/AppError";
@@ -6,7 +7,11 @@ import bcryptjs from "bcryptjs";
 import { envVars } from "../../config/env";
 import { Wallet } from "../wallet/wallet.model";
 import { IWallet, WalletStatus } from "../wallet/wallet.interface";
-// import { JwtPayload } from "jsonwebtoken";
+import {
+  ITransaction,
+  TransactionStatus,
+  TransactionType,
+} from "../transaction/transaction.interface";
 
 const createUser = async (payload: Partial<IUser>) => {
   const session = await User.startSession();
@@ -15,7 +20,7 @@ const createUser = async (payload: Partial<IUser>) => {
   try {
     const { email, password, ...rest } = payload;
 
-    const isUserExist = await User.findOne({ email }).session(session); 
+    const isUserExist = await User.findOne({ email }).session(session);
 
     if (isUserExist) {
       throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist");
@@ -50,6 +55,17 @@ const createUser = async (payload: Partial<IUser>) => {
     };
 
     await Wallet.create([walletData], { session });
+
+    const transactionData: Partial<ITransaction> = {
+      type: TransactionType.CASH_IN,
+      amount: 50,
+      to: user[0]._id,
+      status: TransactionStatus.COMPLETED,
+      initiatorRole: "user",
+      initiatedBy: user[0]._id,
+    };
+
+    await Transaction.create([transactionData], { session });
 
     await session.commitTransaction();
     session.endSession();

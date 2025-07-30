@@ -8,7 +8,14 @@ import { JwtPayload } from "jsonwebtoken";
 const addMoneyToWallet = catchAsync(async (req: Request, res: Response) => {
   const { userId, amount } = req.body;
 
-  const result = await WalletServices.addMoneyWallet({ userId, amount });
+  const decodedToken = req.user as JwtPayload;
+  const agentId = decodedToken.userId;
+
+  const result = await WalletServices.addMoneyWallet({
+    userId,
+    agentId,
+    amount,
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

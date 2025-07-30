@@ -1,9 +1,15 @@
+import mongoose from "mongoose";
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { User } from "../user/user.model";
 import { Wallet } from "./wallet.model";
 import { WalletStatus } from "./wallet.interface";
-import mongoose from "mongoose";
+import {
+  ITransaction,
+  TransactionStatus,
+  TransactionType,
+} from "../transaction/transaction.interface";
+import { Transaction } from "../transaction/transaction.model";
 
 interface IWithdrawPayload {
   userId: string;
@@ -17,29 +23,63 @@ interface ISendMoneyUserToUserPayload {
   amount: number;
 }
 
-const addMoneyWallet = async (payload: { userId: string; amount: number }) => {
-  const { userId, amount } = payload;
+const addMoneyWallet = async (payload: {
+  userId: string;
+  agentId: string;
+  amount: number;
+}) => {
+  const { userId, agentId, amount } = payload;
 
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User doesn't exist");
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const agent = await User.findById(agentId).session(session);
+    if (!agent || agent.isApproved === false) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Agent is not approved or does not exist"
+      );
+    }
+
+    const user = await User.findById(userId).session(session);
+    if (!user) {
+      throw new AppError(httpStatus.BAD_REQUEST, "User doesn't exist");
+    }
+
+    const wallet = await Wallet.findOne({ owner: userId }).session(session);
+    if (!wallet) {
+      throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
+    }
+
+    if (wallet.status === WalletStatus.BLOCKED) {
+      throw new AppError(httpStatus.BAD_REQUEST, "User's wallet is blocked");
+    }
+
+    wallet.balance += amount;
+    await wallet.save({ session });
+
+    const transactionData: Partial<ITransaction> = {
+      type: TransactionType.CASH_IN,
+      amount,
+      from: agent._id,
+      to: user._id,
+      status: TransactionStatus.COMPLETED,
+      initiatorRole: "agent",
+      initiatedBy: agent._id,
+    };
+
+    await Transaction.create([transactionData], { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return wallet;
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
   }
-
-  const wallet = await Wallet.findOne({ owner: userId });
-  if (!wallet) {
-    throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
-  }
-
-  if (wallet.status === WalletStatus.BLOCKED) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User's wallet is blocked");
-  }
-
-  wallet.balance += amount;
-  await wallet.save();
-
-  // TODO: transaction log here
-
-  return wallet;
 };
 
 const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
@@ -62,6 +102,10 @@ const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
     const agent = await User.findOne({ email: agentEmail }).session(session);
     if (!agent || agent.role !== "AGENT") {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid agent ID");
+    }
+
+    if (agent?.isApproved === false) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Agent is not approved yet!");
     }
 
     const userWallet = await Wallet.findOne({ owner: userId }).session(session);
@@ -90,7 +134,17 @@ const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
     await userWallet.save({ session });
     await agentWallet.save({ session });
 
-    // transaction record here...
+    const transactionData: Partial<ITransaction> = {
+      type: TransactionType.CASH_OUT,
+      amount,
+      from: user._id,
+      to: agent._id,
+      status: TransactionStatus.COMPLETED,
+      initiatorRole: "agent",
+      initiatedBy: agent._id,
+    };
+
+    await Transaction.create([transactionData], { session });
 
     await session.commitTransaction();
     session.endSession();
@@ -125,8 +179,8 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
   session.startTransaction();
 
   try {
-    const user = await User.findById(userId).session(session);
-    if (!user) {
+    const sender = await User.findById(userId).session(session);
+    if (!sender) {
       throw new AppError(httpStatus.NOT_FOUND, "Sender not found");
     }
 
@@ -134,7 +188,6 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
       session
     );
 
-  
     if (!recipient || recipient.role !== "USER") {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
     }
@@ -169,12 +222,24 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
 
     // transaction record here...
 
+    const transactionData: Partial<ITransaction> = {
+      type: TransactionType.CASH_OUT,
+      amount,
+      from: sender._id,
+      to: recipient._id,
+      status: TransactionStatus.COMPLETED,
+      initiatorRole: "user",
+      initiatedBy: sender._id,
+    };
+
+    await Transaction.create([transactionData], { session });
+
     await session.commitTransaction();
     session.endSession();
 
     return {
       from: {
-        id: user._id,
+        id: sender._id,
         newBalance: senderWallet.balance,
       },
       to: {
