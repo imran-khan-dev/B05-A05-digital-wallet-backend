@@ -48,24 +48,25 @@ const createUser = async (payload: Partial<IUser>) => {
       { session }
     );
 
-    const walletData: IWallet = {
-      owner: user[0]._id, // Note: `create([])` returns an array
-      balance: 50,
-      status: WalletStatus.ACTIVE,
-    };
+    if (user[0].role === "USER" || user[0].role === "AGENT") {
+      const walletData: IWallet = {
+        owner: user[0]._id, // Note: `create([])` returns an array due to using session
+        balance: 50,
+        status: WalletStatus.ACTIVE,
+      };
 
-    await Wallet.create([walletData], { session });
+      const transactionData: Partial<ITransaction> = {
+        type: TransactionType.CASH_IN_BONUS,
+        amount: 50,
+        to: user[0]._id,
+        status: TransactionStatus.COMPLETED,
+        initiatorRole: "user",
+        initiatedBy: user[0]._id,
+      };
 
-    const transactionData: Partial<ITransaction> = {
-      type: TransactionType.CASH_IN_BONUS,
-      amount: 50,
-      to: user[0]._id,
-      status: TransactionStatus.COMPLETED,
-      initiatorRole: "user",
-      initiatedBy: user[0]._id,
-    };
-
-    await Transaction.create([transactionData], { session });
+      await Wallet.create([walletData], { session });
+      await Transaction.create([transactionData], { session });
+    }
 
     await session.commitTransaction();
     session.endSession();
