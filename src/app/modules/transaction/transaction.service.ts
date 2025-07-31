@@ -1,4 +1,5 @@
 import { Transaction } from "../transaction/transaction.model";
+import { User } from "../user/user.model";
 
 const seeTransactionHistory = async (payload: {
   userId: string;
@@ -20,13 +21,20 @@ const seeTransactionHistory = async (payload: {
 
   const total = await Transaction.countDocuments(filter);
 
+  const user = await User.findById(userId).select("-password");
+
+  const result = {
+    user: user,
+    transactions: transactions,
+  };
+
   return {
     meta: {
       page,
       limit,
       total,
     },
-    data: transactions,
+    data: result,
   };
 };
 

@@ -69,12 +69,20 @@ const addMoneyWallet = async (payload: {
       initiatedBy: agent._id,
     };
 
-    await Transaction.create([transactionData], { session });
+    const thisTransaction = await Transaction.create([transactionData], {
+      session,
+    });
 
     await session.commitTransaction();
     session.endSession();
 
-    return wallet;
+    const result = {
+      user: user.name,
+      wallet: wallet,
+      transaction: thisTransaction,
+    };
+
+    return result;
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
