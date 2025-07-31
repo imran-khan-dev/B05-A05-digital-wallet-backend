@@ -108,7 +108,7 @@ json
 
 json
 {
-  "agentEmail": "anikagent@gmail.com",
+  "agentEmail": "someoneagent@gmail.com",
   "amount": 50
 }
 
@@ -119,7 +119,7 @@ json
 
 json
 {
-  "recipientEmail": "nayem@gmail.com",
+  "recipientEmail": "someone@gmail.com",
   "amount": 44
 }
 
@@ -193,25 +193,25 @@ Test all endpoints using **Postman** or **Thunder Client**:
 DB_URL=
 NODE_ENV =development
 
-# JWT
+### JWT
 JWT_ACCESS_SECRET=
 JWT_ACCESS_EXPIRES=1d
 JWT_REFRESH_SECRET=
 JWT_REFRESH_EXPIRES=
 
-# BCRYPT
+### BCRYPT
 BCRYPT_SALT_ROUND=
 
-# Admin
+### Admin
 ADMIN_EMAIL=
 ADMIN_PASSWORD=
 ADMIN_PHONE=
 
 
-# Express Session
+### Express Session
 EXPRESS_SESSION_SECRET=
 
-# Frontend URL
+### Frontend URL
 FRONTEND_URL=
 
 ---
