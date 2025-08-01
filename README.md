@@ -71,6 +71,16 @@ json
   "password": "securePassword"
 }
 
+#### ➤ For Admin:
+
+json
+{
+  "name": "Agent Smith",
+  "email": "agent@example.com",
+  "phone": "018XXXXXXXX",
+  "role": "ADMIN",
+  "password": "securePassword"
+}
 
 ---
 
