@@ -24,16 +24,17 @@ interface ISendMoneyUserToUserPayload {
 }
 
 const addMoneyWallet = async (payload: {
-  userId: string;
+  userEmail: string;
   agentId: string;
   amount: number;
 }) => {
-  const { userId, agentId, amount } = payload;
+  const { userEmail, agentId, amount } = payload;
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
+    // 1. Check agent
     const agent = await User.findById(agentId).session(session);
     if (!agent || agent.isApproved === false) {
       throw new AppError(
@@ -42,12 +43,14 @@ const addMoneyWallet = async (payload: {
       );
     }
 
-    const user = await User.findById(userId).session(session);
+    // 2. Find user by email
+    const user = await User.findOne({ email: userEmail }).session(session);
     if (!user) {
       throw new AppError(httpStatus.BAD_REQUEST, "User doesn't exist");
     }
 
-    const wallet = await Wallet.findOne({ owner: userId }).session(session);
+    // 3. Find wallet by user._id (since Wallet.owner references User._id)
+    const wallet = await Wallet.findOne({ owner: user._id }).session(session);
     if (!wallet) {
       throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
     }
@@ -56,9 +59,11 @@ const addMoneyWallet = async (payload: {
       throw new AppError(httpStatus.BAD_REQUEST, "User's wallet is blocked");
     }
 
+    // 4. Update wallet balance
     wallet.balance += amount;
     await wallet.save({ session });
 
+    // 5. Create transaction
     const transactionData: Partial<ITransaction> = {
       type: TransactionType.CASH_IN,
       amount,
@@ -76,13 +81,11 @@ const addMoneyWallet = async (payload: {
     await session.commitTransaction();
     session.endSession();
 
-    const result = {
+    return {
       user: user.name,
-      wallet: wallet,
+      wallet,
       transaction: thisTransaction,
     };
-
-    return result;
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

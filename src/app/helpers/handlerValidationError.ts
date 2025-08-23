@@ -14,7 +14,7 @@ export const handlerValidationError = (err: mongoose.Error.ValidationError): TGe
     }))
 
     return {
-        statusCode: 400,
+        statusCode: 400, 
         message: "Validation Error",
         errorSources
     }

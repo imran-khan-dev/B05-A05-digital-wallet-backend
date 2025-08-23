@@ -2,12 +2,10 @@ import z from "zod";
 import { WalletStatus } from "./wallet.interface";
 
 export const addMoneyToWalletZodSchema = z.object({
-  userId: z
+  userEmail: z
     .string()
-    .min(1, "User ID is required.")
-    .regex(/^[0-9a-fA-F]{24}$/, {
-      message: "Invalid MongoDB ObjectId format.",
-    }),
+    .email("Invalid user email")
+    .min(1, { message: "User email is required" }),
 
   amount: z
     .number()
@@ -38,7 +36,6 @@ export const sendMoneyUserToUserZodSchema = z.object({
     .positive("Amount must be greater than 0")
     .refine((val) => !!val, { message: "Amount is required" }),
 });
-
 
 export const updateWalletByAdminZodSchema = z.object({
   status: z.enum(["ACTIVE", "BLOCKED"]).optional(),
