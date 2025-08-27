@@ -283,9 +283,20 @@ const updateWalletByAdmin = async (
   return walletUpdated;
 };
 
+const getMyWallet = async (userId: string) => {
+  const myWallet = await Wallet.findOne({ owner: userId });
+
+  if (!myWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
+  }
+
+  return myWallet;
+};
+
 export const WalletServices = {
   addMoneyWallet,
   withdrawMoneyFromWallet,
   sendMoneyUserToUser,
   updateWalletByAdmin,
+  getMyWallet,
 };

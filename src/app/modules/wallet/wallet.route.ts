@@ -34,6 +34,12 @@ router.post(
 );
 
 router.get(
+  "/my-wallet",
+  checkAuth(...Object.values(Role)),
+  WalletController.getMyWallet
+);
+
+router.get(
   "/all-wallets",
   checkAuth(Role.ADMIN),
   WalletController.getAllWallets

@@ -77,6 +77,19 @@ const getAllWallets = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyWallet = catchAsync(async (req: Request, res: Response) => {
+  const decodedToken = req.user as JwtPayload;
+
+  const myWallet = await WalletServices.getMyWallet(decodedToken.userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Wallet Retrived Successfully",
+    data: myWallet,
+  });
+});
+
 const updateWallet = catchAsync(async (req: Request, res: Response) => {
   const userId = req.params.id;
   const payload = req.body;
@@ -100,4 +113,5 @@ export const WalletController = {
   sendMoneyUserToUser,
   getAllWallets,
   updateWallet,
+  getMyWallet,
 };
