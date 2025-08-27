@@ -13,6 +13,8 @@ import {
   TransactionType,
 } from "../transaction/transaction.interface";
 
+import bcrypt from "bcrypt";
+
 const createUser = async (payload: Partial<IUser>) => {
   const session = await User.startSession();
   session.startTransaction();
@@ -79,6 +81,13 @@ const createUser = async (payload: Partial<IUser>) => {
   }
 };
 
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  return {
+    data: user,
+  };
+};
+
 const updateAgentByAdmin = async (
   agentId: string,
   payload: {
@@ -99,7 +108,38 @@ const updateAgentByAdmin = async (
   return agent;
 };
 
+const updateProfile = async (userId: string, payload: Partial<IUser>) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const updateData: Partial<IUser> = {};
+
+  if (payload.name) {
+    updateData.name = payload.name;
+  }
+
+  if (payload.phone) {
+    updateData.phone = payload.phone;
+  }
+
+  if (payload.password) {
+    const hashedPassword = await bcrypt.hash(payload.password, 10);
+    updateData.password = hashedPassword;
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    runValidators: true,
+  }).select("-password");
+
+  return updatedUser;
+};
+
 export const UserServices = {
   createUser,
   updateAgentByAdmin,
+  getMe,
+  updateProfile,
 };

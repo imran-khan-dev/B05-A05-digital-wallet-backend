@@ -5,6 +5,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { User } from "./user.model";
 import { Role } from "./user.interface";
+import { JwtPayload } from "jsonwebtoken";
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -31,6 +32,20 @@ const getAllUsers = catchAsync(
   }
 );
 
+const getMe = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const result = await UserServices.getMe(decodedToken.userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Your profile Retrieved Successfully",
+      data: result.data,
+    });
+  }
+);
+
 const getAllAgents = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const allAgents = await User.find({ role: Role.AGENT });
@@ -47,7 +62,6 @@ const getAllAgents = catchAsync(
 const updateAgentByAdmin = catchAsync(async (req: Request, res: Response) => {
   const agentId = req.params.id;
   const payload = req.body;
-  
 
   const updatedAgent = await UserServices.updateAgentByAdmin(agentId, payload);
 
@@ -59,9 +73,28 @@ const updateAgentByAdmin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const decodedToken = req.user as JwtPayload;
+  const payload = req.body;
+
+  const updatedProfile = await UserServices.updateProfile(
+    decodedToken.userId,
+    payload
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Profile updated successfully",
+    data: updatedProfile,
+  });
+});
+
 export const UserControllers = {
   createUser,
   getAllUsers,
   getAllAgents,
   updateAgentByAdmin,
+  getMe,
+  updateProfile,
 };

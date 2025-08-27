@@ -95,3 +95,30 @@ export const updateAgentByAdminZodSchema = z.object({
   isApproved: z.boolean().optional(),
   isActive: z.enum(["ACTIVE", "BLOCKED"]).optional(),
 });
+
+export const updateProfileSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Name must be at least 2 characters long")
+      .max(50, "Name must be at most 50 characters long")
+      .optional(),
+
+    phone: z
+      .string()
+      .regex(/^(\+?\d{1,3}[- ]?)?\d{10,15}$/, "Phone number must be valid")
+      .optional(),
+
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/\d/, "Password must contain at least one digit")
+      .regex(
+        /[@$!%*?&]/,
+        "Password must contain at least one special character (@, $, !, %, *, ?, &)"
+      )
+      .optional(),
+  })
+  .strict();
