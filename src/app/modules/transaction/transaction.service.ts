@@ -38,6 +38,20 @@ const seeTransactionHistory = async (payload: {
   };
 };
 
+const transactionSum = async () => {
+  const totalVolume = await Transaction.aggregate([
+    { $match: { status: "completed" } },
+    { $group: { _id: null, total: { $sum: "$amount" } } },
+  ]);
+
+  const result = {
+    totalVolume: totalVolume[0]?.total || 0,
+  };
+
+  return result;
+};
+
 export const TransactionServices = {
   seeTransactionHistory,
+  transactionSum,
 };

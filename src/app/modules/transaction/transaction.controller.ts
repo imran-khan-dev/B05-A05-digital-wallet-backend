@@ -18,6 +18,18 @@ const seeAllTransactionsHistory = catchAsync(
   }
 );
 
+const transactionSum = catchAsync(async (req: Request, res: Response) => {
+  
+  const result = await TransactionServices.transactionSum();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Transactions Sum retrieved successfully",
+    data: result,
+  });
+});
+
 const seeTransactionHistory = catchAsync(
   async (req: Request, res: Response) => {
     const userId = req.params.id;
@@ -42,4 +54,5 @@ const seeTransactionHistory = catchAsync(
 export const TransactionControllers = {
   seeTransactionHistory,
   seeAllTransactionsHistory,
+  transactionSum,
 };

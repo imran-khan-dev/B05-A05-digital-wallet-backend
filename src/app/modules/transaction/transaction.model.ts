@@ -19,11 +19,11 @@ const transactionSchema = new Schema<ITransaction>(
     },
     from: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Wallet",
     },
     to: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Wallet",
     },
     fee: {
       type: Number,

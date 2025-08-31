@@ -12,7 +12,13 @@ router.get(
 );
 
 router.get(
-  "/transaction-history/:id",
+  "/transaction-sum/",
+  checkAuth(Role.ADMIN),
+  TransactionControllers.transactionSum
+);
+
+router.get(
+  "/transaction-history/:id", 
   checkAuth(Role.USER),
   TransactionControllers.seeTransactionHistory
 );

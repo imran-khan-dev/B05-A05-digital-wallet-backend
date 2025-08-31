@@ -234,8 +234,8 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
     const transactionData: Partial<ITransaction> = {
       type: TransactionType.SEND_MONEY,
       amount,
-      from: sender._id,
-      to: recipient._id,
+      from: senderWallet._id, // wallet ID
+      to: recipientWallet._id, // wallet ID
       status: TransactionStatus.COMPLETED,
       initiatorRole: "user",
       initiatedBy: sender._id,
@@ -284,13 +284,51 @@ const updateWalletByAdmin = async (
 };
 
 const getMyWallet = async (userId: string) => {
-  const myWallet = await Wallet.findOne({ owner: userId });
+  const wallet = await Wallet.findOne({ owner: userId });
 
-  if (!myWallet) {
+  if (!wallet) {
     throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
   }
 
-  return myWallet;
+  const walletId = new mongoose.Types.ObjectId(wallet._id);
+
+  const transactions = await Transaction.aggregate([
+    {
+      $match: {
+        $or: [{ from: walletId }, { to: walletId }],
+        status: "completed",
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalTransactions: { $sum: 1 },
+        totalIn: {
+          $sum: {
+            $cond: [{ $eq: ["$to", walletId] }, "$amount", 0],
+          },
+        },
+        totalOut: {
+          $sum: {
+            $cond: [{ $eq: ["$from", walletId] }, "$amount", 0],
+          },
+        },
+      },
+    },
+  ]);
+
+  const summary = transactions[0] || {
+    totalTransactions: 0,
+    totalIn: 0,
+    totalOut: 0,
+  };
+
+  const data = {
+    balance: wallet.balance,
+    ...summary,
+  };
+
+  return data;
 };
 
 export const WalletServices = {
