@@ -68,11 +68,11 @@ const addMoneyWallet = async (payload: {
     const transactionData: Partial<ITransaction> = {
       type: TransactionType.CASH_IN,
       amount,
-      from: agent._id,
-      to: user._id,
+      from: agent.email,
+      to: user.email,
       status: TransactionStatus.COMPLETED,
       initiatorRole: "agent",
-      initiatedBy: agent._id,
+      initiatedBy: agent.email,
     };
 
     const thisTransaction = await Transaction.create([transactionData], {
@@ -155,11 +155,11 @@ const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
     const transactionData: Partial<ITransaction> = {
       type: TransactionType.CASH_OUT,
       amount,
-      from: user._id,
-      to: agent._id,
+      from: user.email,
+      to: agent.email,
       status: TransactionStatus.COMPLETED,
       initiatorRole: "agent",
-      initiatedBy: agent._id,
+      initiatedBy: agent.email,
     };
 
     await Transaction.create([transactionData], { session });
@@ -209,7 +209,6 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
       role: "USER",
     }).session(session);
 
-    // console.log("check user id:", recipientEmail, recipient);
 
     if (!recipient || recipient.role !== "USER") {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
@@ -246,11 +245,11 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
     const transactionData: Partial<ITransaction> = {
       type: TransactionType.SEND_MONEY,
       amount,
-      from: senderWallet._id, // wallet ID
-      to: recipientWallet._id, // wallet ID
+      from: sender.email,
+      to: recipient.email,
       status: TransactionStatus.COMPLETED,
       initiatorRole: "user",
-      initiatedBy: sender._id,
+      initiatedBy: sender.email,
     };
 
     await Transaction.create([transactionData], { session });

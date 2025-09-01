@@ -5,14 +5,36 @@ const seeTransactionHistory = async (payload: {
   userId: string;
   page: number;
   limit: number;
+  type?: string;
+  fromDate?: string;
+  toDate?: string;
 }) => {
-  const { userId, page, limit } = payload;
-
+  const { userId, page, limit, type, fromDate, toDate } = payload;
   const skip = (page - 1) * limit;
 
-  const filter = {
-    $or: [{ from: userId }, { to: userId }],
+  const user = await User.findById(userId).select("-password");
+  if (!user) throw new Error("User not found");
+
+  const filter: any = {
+    $or: [{ from: user.email }, { to: user.email }],
   };
+
+  // type filter
+  if (type) {
+    filter.type = type;
+  }
+
+  // date range filter
+  if (fromDate && toDate) {
+    filter.createdAt = {
+      $gte: new Date(fromDate),
+      $lte: new Date(toDate),
+    };
+  } else if (fromDate) {
+    filter.createdAt = { $gte: new Date(fromDate) };
+  } else if (toDate) {
+    filter.createdAt = { $lte: new Date(toDate) };
+  }
 
   const transactions = await Transaction.find(filter)
     .sort({ createdAt: -1 })
@@ -21,20 +43,16 @@ const seeTransactionHistory = async (payload: {
 
   const total = await Transaction.countDocuments(filter);
 
-  const user = await User.findById(userId).select("-password");
-
-  const result = {
-    user: user,
-    transactions: transactions,
-  };
-
   return {
     meta: {
       page,
       limit,
       total,
     },
-    data: result,
+    data: {
+      user,
+      transactions,
+    },
   };
 };
 

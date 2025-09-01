@@ -19,7 +19,6 @@ const seeAllTransactionsHistory = catchAsync(
 );
 
 const transactionSum = catchAsync(async (req: Request, res: Response) => {
-  
   const result = await TransactionServices.transactionSum();
 
   sendResponse(res, {
@@ -35,11 +34,18 @@ const seeTransactionHistory = catchAsync(
     const userId = req.params.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
+    const type = req.query.type as string; // send | cash-in | cash-out
+    const fromDate = req.query.fromDate as string;
+    const toDate = req.query.toDate as string;
 
+    console.log("from controller:", page);
     const result = await TransactionServices.seeTransactionHistory({
       userId,
       page,
       limit,
+      type,
+      fromDate,
+      toDate,
     });
 
     sendResponse(res, {

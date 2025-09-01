@@ -1,11 +1,11 @@
 import { Document, Types } from "mongoose";
 
 export enum TransactionType {
-  ADD = "add",  
-  SEND_MONEY = "send", 
-  CASH_IN = "cash-in", 
+  ADD = "add",
+  SEND_MONEY = "send",
+  CASH_IN = "cash-in",
   CASH_IN_BONUS = "cash-in-bonus",
-  CASH_OUT = "cash-out", 
+  CASH_OUT = "cash-out",
 }
 
 export enum TransactionStatus {
@@ -17,13 +17,13 @@ export enum TransactionStatus {
 export interface ITransaction extends Document {
   type: TransactionType;
   amount: number;
-  from?: Types.ObjectId; // Whose wallet money was taken from
-  to?: Types.ObjectId; // Whose wallet received the money
+  from?: string; // Whose wallet money was taken from
+  to?: string; // Whose wallet received the money
   fee?: number;
   commission?: number;
   status: TransactionStatus;
   initiatorRole: "user" | "agent" | "admin";
-  initiatedBy: Types.ObjectId; // ID of the user/agent who initiated it
+  initiatedBy: string; // the user/agent who initiated it
   createdAt?: Date;
   updatedAt?: Date;
 }

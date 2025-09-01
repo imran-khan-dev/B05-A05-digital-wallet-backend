@@ -18,12 +18,10 @@ const transactionSchema = new Schema<ITransaction>(
       min: 1,
     },
     from: {
-      type: Schema.Types.ObjectId,
-      ref: "Wallet",
+      type: String,
     },
     to: {
-      type: Schema.Types.ObjectId,
-      ref: "Wallet",
+      type: String,
     },
     fee: {
       type: Number,
@@ -43,7 +41,7 @@ const transactionSchema = new Schema<ITransaction>(
       enum: ["user", "agent", "admin"],
       required: true,
     },
-    initiatedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    initiatedBy: { type: String, required: true },
   },
   {
     timestamps: true,
