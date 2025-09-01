@@ -33,10 +33,5 @@ router.patch(
   UserControllers.updateAgentByAdmin
 );
 
-router.post(
-  "/transaction-history",
-  validateRequest(createUserZodSchema),
-  UserControllers.createUser
-);
 
 export const UserRoutes = router;

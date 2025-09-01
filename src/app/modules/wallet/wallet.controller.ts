@@ -28,13 +28,13 @@ const addMoneyToWallet = catchAsync(async (req: Request, res: Response) => {
 
 const withdrawMoneyFromWallet = catchAsync(
   async (req: Request, res: Response) => {
-    const { agentEmail, amount } = req.body;
+    const { agentID, amount } = req.body;
     const decodedToken = req.user as JwtPayload;
     const userId = decodedToken.userId;
 
     const result = await WalletServices.withdrawMoneyFromWallet({
       userId,
-      agentEmail,
+      agentID,
       amount,
     });
 
@@ -48,13 +48,17 @@ const withdrawMoneyFromWallet = catchAsync(
 );
 
 const sendMoneyUserToUser = catchAsync(async (req: Request, res: Response) => {
-  const { recipientEmail, amount } = req.body;
+  const { receiver, amount } = req.body;
   const decodedToken = req.user as JwtPayload;
   const userId = decodedToken.userId;
 
+  console.log("from controller red body:", req.body);
+
+  console.log("from controller:", receiver, amount, userId);
+
   const result = await WalletServices.sendMoneyUserToUser({
     userId,
-    recipientEmail,
+    receiver,
     amount,
   });
 

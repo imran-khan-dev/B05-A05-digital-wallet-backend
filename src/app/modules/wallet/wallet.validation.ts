@@ -19,17 +19,11 @@ export const withdrawMoneyFromWalletZodSchema = z.object({
     .positive("Withdraw amount must be greater than 0")
     .refine((val) => !!val, { message: "Withdraw amount is required" }),
 
-  agentEmail: z
-    .string()
-    .email("Invalid agent email")
-    .min(1, { message: "Agent email is required" }),
+  agentID: z.string().min(1, "Agent phone or email is required"),
 });
 
 export const sendMoneyUserToUserZodSchema = z.object({
-  recipientEmail: z
-    .string()
-    .email("Invalid recipient email")
-    .min(1, { message: "Recipient email is required" }),
+  receiver: z.string().min(1, "User phone or email is required"),
 
   amount: z
     .number()

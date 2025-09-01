@@ -10,16 +10,17 @@ import {
   TransactionType,
 } from "../transaction/transaction.interface";
 import { Transaction } from "../transaction/transaction.model";
+import normalizePhone from "../../utils/normalizePhone";
 
 interface IWithdrawPayload {
   userId: string;
-  agentEmail: string;
+  agentID: string;
   amount: number;
 }
 
 interface ISendMoneyUserToUserPayload {
   userId: string;
-  recipientEmail: string;
+  receiver: string;
   amount: number;
 }
 
@@ -94,7 +95,7 @@ const addMoneyWallet = async (payload: {
 };
 
 const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
-  const { userId, agentEmail, amount } = payload;
+  const { userId, agentID: agentEmailOrPhone, amount } = payload;
 
   if (amount <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Amount must be greater than 0");
@@ -110,7 +111,13 @@ const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
       throw new AppError(httpStatus.NOT_FOUND, "User not found");
     }
 
-    const agent = await User.findOne({ email: agentEmail }).session(session);
+    const formattedPhone = normalizePhone(agentEmailOrPhone);
+
+    const agent = await User.findOne({
+      $or: [{ email: agentEmailOrPhone }, { phone: formattedPhone }],
+      role: "AGENT",
+    }).session(session);
+
     if (!agent || agent.role !== "AGENT") {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid agent ID");
     }
@@ -179,7 +186,7 @@ const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
 };
 
 const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
-  const { userId, recipientEmail, amount } = payload;
+  const { userId, receiver: recevierEmailorPhone, amount } = payload;
 
   if (amount <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Amount must be greater than 0");
@@ -195,9 +202,14 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
       throw new AppError(httpStatus.NOT_FOUND, "Sender not found");
     }
 
-    const recipient = await User.findOne({ email: recipientEmail }).session(
-      session
-    );
+    const formattedPhone = normalizePhone(recevierEmailorPhone);
+
+    const recipient = await User.findOne({
+      $or: [{ email: recevierEmailorPhone }, { phone: formattedPhone }],
+      role: "USER",
+    }).session(session);
+
+    // console.log("check user id:", recipientEmail, recipient);
 
     if (!recipient || recipient.role !== "USER") {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
