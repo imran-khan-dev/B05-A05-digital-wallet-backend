@@ -169,11 +169,11 @@ const withdrawMoneyFromWallet = async (payload: IWithdrawPayload) => {
 
     return {
       from: {
-        id: user._id,
+        id: user.email,
         newBalance: userWallet.balance,
       },
       to: {
-        id: agent._id,
+        id: agent.email,
         newBalance: agentWallet.balance,
       },
       amount,
@@ -208,7 +208,6 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
       $or: [{ email: recevierEmailorPhone }, { phone: formattedPhone }],
       role: "USER",
     }).session(session);
-
 
     if (!recipient || recipient.role !== "USER") {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
@@ -259,11 +258,11 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
 
     return {
       from: {
-        id: sender._id,
+        id: sender.email,
         newBalance: senderWallet.balance,
       },
       to: {
-        id: recipient._id,
+        id: recipient.email,
         newBalance: recipientWallet.balance,
       },
       amount,
