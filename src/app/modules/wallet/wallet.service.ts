@@ -302,10 +302,18 @@ const getMyWallet = async (userId: string) => {
 
   const walletId = new mongoose.Types.ObjectId(wallet._id);
 
+  const user = await User.findById(userId);
+
+  console.log(user);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
   const transactions = await Transaction.aggregate([
     {
       $match: {
-        $or: [{ from: walletId }, { to: walletId }],
+        $or: [{ from: user.email }, { to: user.email }],
         status: "completed",
       },
     },
@@ -315,12 +323,12 @@ const getMyWallet = async (userId: string) => {
         totalTransactions: { $sum: 1 },
         totalIn: {
           $sum: {
-            $cond: [{ $eq: ["$to", walletId] }, "$amount", 0],
+            $cond: [{ $eq: ["$to", user.email] }, "$amount", 0],
           },
         },
         totalOut: {
           $sum: {
-            $cond: [{ $eq: ["$from", walletId] }, "$amount", 0],
+            $cond: [{ $eq: ["$from", user.email] }, "$amount", 0],
           },
         },
       },
