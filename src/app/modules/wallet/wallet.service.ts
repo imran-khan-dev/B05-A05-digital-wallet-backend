@@ -25,11 +25,15 @@ interface ISendMoneyUserToUserPayload {
 }
 
 const addMoneyWallet = async (payload: {
-  userEmail: string;
+  receiver: string;
   agentId: string;
   amount: number;
 }) => {
-  const { userEmail, agentId, amount } = payload;
+  const { receiver: recevierEmailorPhone, agentId, amount } = payload;
+
+  if (amount <= 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Amount must be greater than 0");
+  }
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -43,14 +47,21 @@ const addMoneyWallet = async (payload: {
       );
     }
 
-    const user = await User.findOne({ email: userEmail }).session(session);
-    if (!user) {
-      throw new AppError(httpStatus.BAD_REQUEST, "User doesn't exist");
+    const formattedPhone = normalizePhone(recevierEmailorPhone);
+
+    const recipient = await User.findOne({
+      $or: [{ email: recevierEmailorPhone }, { phone: formattedPhone }],
+      role: "USER",
+    }).session(session);
+
+    if (!recipient || recipient.role !== "USER") {
+      throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
     }
 
-    const userWallet = await Wallet.findOne({ owner: user._id }).session(
+    const userWallet = await Wallet.findOne({ owner: recipient._id }).session(
       session
     );
+
     if (!userWallet) {
       throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
     }
@@ -82,7 +93,7 @@ const addMoneyWallet = async (payload: {
       type: TransactionType.CASH_IN,
       amount,
       from: agent.email,
-      to: user.email,
+      to: recipient.email,
       status: TransactionStatus.COMPLETED,
       initiatorRole: "agent",
       initiatedBy: agent.email,
@@ -96,7 +107,7 @@ const addMoneyWallet = async (payload: {
     session.endSession();
 
     return {
-      user: user.name,
+      user: recipient.name,
       userWallet,
       transaction: thisTransaction,
     };
@@ -224,6 +235,13 @@ const sendMoneyUserToUser = async (payload: ISendMoneyUserToUserPayload) => {
 
     if (!recipient || recipient.role !== "USER") {
       throw new AppError(httpStatus.BAD_REQUEST, "Invalid user ID");
+    }
+
+    if (recipient._id.equals(sender._id)) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Sender and Receiver can't be same"
+      );
     }
 
     const senderWallet = await Wallet.findOne({ owner: userId }).session(

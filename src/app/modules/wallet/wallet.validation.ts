@@ -2,10 +2,7 @@ import z from "zod";
 import { WalletStatus } from "./wallet.interface";
 
 export const addMoneyToWalletZodSchema = z.object({
-  userEmail: z
-    .string()
-    .email("Invalid user email")
-    .min(1, { message: "User email is required" }),
+  receiver: z.string().min(1, "User phone or email is required"),
 
   amount: z
     .number()
