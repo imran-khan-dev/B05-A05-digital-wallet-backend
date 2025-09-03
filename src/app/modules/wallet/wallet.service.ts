@@ -35,7 +35,6 @@ const addMoneyWallet = async (payload: {
   session.startTransaction();
 
   try {
-    // 1. Check agent
     const agent = await User.findById(agentId).session(session);
     if (!agent || agent.isApproved === false) {
       throw new AppError(
@@ -44,25 +43,39 @@ const addMoneyWallet = async (payload: {
       );
     }
 
-    // 2. Find user by email
     const user = await User.findOne({ email: userEmail }).session(session);
     if (!user) {
       throw new AppError(httpStatus.BAD_REQUEST, "User doesn't exist");
     }
 
-    // 3. Find wallet by user._id (since Wallet.owner references User._id)
-    const wallet = await Wallet.findOne({ owner: user._id }).session(session);
-    if (!wallet) {
+    const userWallet = await Wallet.findOne({ owner: user._id }).session(
+      session
+    );
+    if (!userWallet) {
       throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
     }
 
-    if (wallet.status === WalletStatus.BLOCKED) {
+    if (userWallet.status === WalletStatus.BLOCKED) {
+      throw new AppError(httpStatus.BAD_REQUEST, "User's wallet is blocked");
+    }
+
+    const agentWallet = await Wallet.findOne({ owner: agentId }).session(
+      session
+    );
+    if (!agentWallet) {
+      throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
+    }
+
+    if (agentWallet.status === WalletStatus.BLOCKED) {
       throw new AppError(httpStatus.BAD_REQUEST, "User's wallet is blocked");
     }
 
     // 4. Update wallet balance
-    wallet.balance += amount;
-    await wallet.save({ session });
+    userWallet.balance += amount;
+    agentWallet.balance -= amount;
+
+    await userWallet.save({ session });
+    await agentWallet.save({ session });
 
     // 5. Create transaction
     const transactionData: Partial<ITransaction> = {
@@ -84,7 +97,7 @@ const addMoneyWallet = async (payload: {
 
     return {
       user: user.name,
-      wallet,
+      userWallet,
       transaction: thisTransaction,
     };
   } catch (error) {
