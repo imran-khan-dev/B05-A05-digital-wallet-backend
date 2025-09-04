@@ -91,7 +91,7 @@ export const updateUserZodSchema = z.object({
 });
 
 // Update Agent Validation
-export const updateAgentByAdminZodSchema = z.object({
+export const updateUserByAdminZodSchema = z.object({
   isApproved: z.boolean().optional(),
   isActive: z.enum(["ACTIVE", "BLOCKED"]).optional(),
 });

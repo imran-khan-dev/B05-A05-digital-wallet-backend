@@ -59,16 +59,16 @@ const getAllAgents = catchAsync(
   }
 );
 
-const updateAgentByAdmin = catchAsync(async (req: Request, res: Response) => {
-  const agentId = req.params.id;
+const updateUserByAdmin = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
   const payload = req.body;
 
-  const updatedAgent = await UserServices.updateAgentByAdmin(agentId, payload);
+  const updatedAgent = await UserServices.updateUserByAdmin(userId, payload);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Agent updated successfully",
+    message: "User updated successfully",
     data: updatedAgent,
   });
 });
@@ -94,7 +94,7 @@ export const UserControllers = {
   createUser,
   getAllUsers,
   getAllAgents,
-  updateAgentByAdmin,
+  updateUserByAdmin,
   getMe,
   updateProfile,
 };

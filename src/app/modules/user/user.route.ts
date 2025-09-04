@@ -3,7 +3,7 @@ import { UserControllers } from "./user.controller";
 import { validateRequest } from "../../middlewares/validateRequest";
 import {
   createUserZodSchema,
-  updateAgentByAdminZodSchema,
+  updateUserByAdminZodSchema,
   updateProfileSchema,
 } from "./user.validation";
 import { checkAuth } from "../../middlewares/checkAuth";
@@ -27,11 +27,10 @@ router.patch(
 );
 router.get("/all-agents", checkAuth(Role.ADMIN), UserControllers.getAllAgents);
 router.patch(
-  "/agent/update/:id",
+  "/update/:id",
   checkAuth(Role.ADMIN),
-  validateRequest(updateAgentByAdminZodSchema),
-  UserControllers.updateAgentByAdmin
+  validateRequest(updateUserByAdminZodSchema),
+  UserControllers.updateUserByAdmin
 );
-
 
 export const UserRoutes = router;

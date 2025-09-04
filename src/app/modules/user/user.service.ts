@@ -2,7 +2,7 @@ import { Transaction } from "./../transaction/transaction.model";
 import httpStatus from "http-status-codes";
 import { User } from "./user.model";
 import AppError from "../../errorHelpers/AppError";
-import { IAuthProvider, IsActive, IUser, Role } from "./user.interface";
+import { IAuthProvider, IsActive, IUser } from "./user.interface";
 import bcryptjs from "bcryptjs";
 import { envVars } from "../../config/env";
 import { Wallet } from "../wallet/wallet.model";
@@ -88,24 +88,40 @@ const getMe = async (userId: string) => {
   };
 };
 
-const updateAgentByAdmin = async (
-  agentId: string,
+const updateUserByAdmin = async (
+  userId: string,
   payload: {
     isApproved?: boolean;
     isActive?: IsActive;
   }
 ) => {
-  const agent = await User.findOneAndUpdate(
-    { _id: agentId, role: "AGENT" },
-    payload,
-    { new: true, runValidators: true }
-  );
+  const user = await User.findById(userId);
 
-  if (!agent) {
-    throw new AppError(httpStatus.NOT_FOUND, "Agent not found or not an agent");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  return agent;
+  let updatePayload: Record<string, unknown> = {};
+
+  if (user.role === "AGENT") {
+    if (payload.isApproved !== undefined) {
+      updatePayload.isApproved = payload.isApproved;
+    }
+    if (payload.isActive !== undefined) {
+      updatePayload.isActive = payload.isActive;
+    }
+  } else {
+    if (payload.isActive !== undefined) {
+      updatePayload.isActive = payload.isActive;
+    }
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updatePayload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return updatedUser;
 };
 
 const updateProfile = async (userId: string, payload: Partial<IUser>) => {
@@ -139,7 +155,7 @@ const updateProfile = async (userId: string, payload: Partial<IUser>) => {
 
 export const UserServices = {
   createUser,
-  updateAgentByAdmin,
+  updateUserByAdmin,
   getMe,
   updateProfile,
 };
