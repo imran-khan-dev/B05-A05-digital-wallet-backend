@@ -8,51 +8,76 @@ const seeTransactionHistory = async (payload: {
   type?: string;
   fromDate?: string;
   toDate?: string;
+  search?: string;
+  status?: string;
+  minAmount?: number;
+  maxAmount?: number;
 }) => {
-  const { userId, page, limit, type, fromDate, toDate } = payload;
+  const {
+    userId,
+    page,
+    limit,
+    type,
+    fromDate,
+    toDate,
+    search,
+    status,
+    minAmount,
+    maxAmount,
+  } = payload;
+
   const skip = (page - 1) * limit;
 
   const user = await User.findById(userId).select("-password");
   if (!user) throw new Error("User not found");
 
-  const filter: any = {
-    $or: [{ from: user.email }, { to: user.email }],
-  };
+  const userRole = user.role;
+  let filter: any = {};
 
-  // type filter
-  if (type) {
-    filter.type = type;
+  if (userRole !== "ADMIN") {
+    filter.$or = [{ from: user.email }, { to: user.email }];
   }
 
-  // date range filter
+  if (type) filter.type = type;
+
   if (fromDate && toDate) {
-    filter.createdAt = {
-      $gte: new Date(fromDate),
-      $lte: new Date(toDate),
-    };
+    filter.createdAt = { $gte: new Date(fromDate), $lte: new Date(toDate) };
   } else if (fromDate) {
     filter.createdAt = { $gte: new Date(fromDate) };
   } else if (toDate) {
     filter.createdAt = { $lte: new Date(toDate) };
   }
 
+  if (search) {
+    filter.$or = [
+      ...(filter.$or || []),
+      { from: { $regex: search, $options: "i" } },
+      { to: { $regex: search, $options: "i" } },
+      { email: search },
+    ];
+  }
+
+  if (status) filter.status = status;
+
+  if (minAmount || maxAmount) {
+    filter.amount = {};
+    if (minAmount) filter.amount.$gte = minAmount;
+    if (maxAmount) filter.amount.$lte = maxAmount;
+  }
+
+  console.log(filter);
+
   const transactions = await Transaction.find(filter)
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
 
+  console.log(transactions);
   const total = await Transaction.countDocuments(filter);
 
   return {
-    meta: {
-      page,
-      limit,
-      total,
-    },
-    data: {
-      user,
-      transactions,
-    },
+    meta: { page, limit, total },
+    data: { user, transactions },
   };
 };
 

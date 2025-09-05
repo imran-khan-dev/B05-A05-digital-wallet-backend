@@ -34,11 +34,14 @@ const seeTransactionHistory = catchAsync(
     const userId = req.params.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const type = req.query.type as string; // send | cash-in | cash-out
+    const type = req.query.type as string;
     const fromDate = req.query.fromDate as string;
     const toDate = req.query.toDate as string;
+    const search = req.query.search as string;
+    const status = req.query.status as string;
+    const minAmount = parseInt(req.query.minAmount as string) || 10;
+    const maxAmount = parseInt(req.query.maxAmount as string);
 
-    console.log("from controller:", page);
     const result = await TransactionServices.seeTransactionHistory({
       userId,
       page,
@@ -46,6 +49,10 @@ const seeTransactionHistory = catchAsync(
       type,
       fromDate,
       toDate,
+      search,
+      status,
+      minAmount,
+      maxAmount,
     });
 
     sendResponse(res, {
