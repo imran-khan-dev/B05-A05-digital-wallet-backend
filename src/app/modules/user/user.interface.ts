@@ -1,11 +1,5 @@
 import { Types } from "mongoose";
 
-//auth providers
-/**
- * email, password
- * google authentication
- */
-
 export enum Role {
   ADMIN = "ADMIN",
   USER = "USER",
@@ -13,7 +7,7 @@ export enum Role {
 }
 
 export interface IAuthProvider {
-  provider: "google" | "credentials"; // "Google", "Credential"
+  provider: "google" | "credentials";
   providerId: string;
 }
 
