@@ -6,38 +6,37 @@ A secure and role-based digital wallet system API built with Node.js, Express.js
 
 ## 🚀 Features
 
-* Role-based authentication (User, Agent, Admin)
-* Add money to wallet (Agent)
-* Withdraw and send money (User)
-* Full transaction history (with pagination and filters)
-* Admin control for Users, Agents, Wallets, Transactions
-* Input validation using Zod
+- Role-based authentication (User, Agent, Admin)
+- Add money to wallet (Agent)
+- Withdraw and send money (User)
+- Full transaction history (with pagination and filters)
+- Admin control for Users, Agents, Wallets, Transactions
+- Input validation using Zod
 
 ---
 
 ## 📦 Tech Stack
 
-* **Backend:** Node.js, Express.js
-* **Database:** MongoDB + Mongoose
-* **Authentication:** JWT, bcrypt
-* **Validation:** Zod
-* **Error Handling:** Custom Error Classes + Global Middleware
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB + Mongoose
+- **Authentication:** JWT, bcrypt
+- **Validation:** Zod
+- **Error Handling:** Custom Error Classes + Global Middleware
 
 ---
 
 ## 📂 Project Structure
 
-
 src/
 ├── app/
-│   ├── config/
-│   ├── errorHelpers/
-│   ├── helpers/
-│   ├── interface/
-│   ├── middlewares/
-│   ├── modules/
-│   ├── routes/
-│   └── utils/
+│ ├── config/
+│ ├── errorHelpers/
+│ ├── helpers/
+│ ├── interface/
+│ ├── middlewares/
+│ ├── modules/
+│ ├── routes/
+│ └── utils/
 ├── app.ts
 └── server.ts
 
@@ -53,33 +52,32 @@ src/
 
 json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phone": "017XXXXXXXX",
-  "password": "securePassword"
+"name": "John Doe",
+"email": "john@example.com",
+"phone": "017XXXXXXXX",
+"password": "securePassword"
 }
-
 
 #### ➤ For Agent:
 
 json
 {
-  "name": "Agent Smith",
-  "email": "agent@example.com",
-  "phone": "018XXXXXXXX",
-  "role": "AGENT",
-  "password": "securePassword"
+"name": "Agent Smith",
+"email": "agent@example.com",
+"phone": "018XXXXXXXX",
+"role": "AGENT",
+"password": "securePassword"
 }
 
 #### ➤ For Admin:
 
 json
 {
-  "name": "Agent Smith",
-  "email": "agent@example.com",
-  "phone": "018XXXXXXXX",
-  "role": "ADMIN",
-  "password": "securePassword"
+"name": "Agent Smith",
+"email": "agent@example.com",
+"phone": "018XXXXXXXX",
+"role": "ADMIN",
+"password": "securePassword"
 }
 
 ---
@@ -90,10 +88,9 @@ json
 
 json
 {
-  "email": "user@example.com",
-  "password": "securePassword"
+"email": "user@example.com",
+"password": "securePassword"
 }
-
 
 **POST** `/api/v1/auth/logout`
 
@@ -107,10 +104,9 @@ json
 
 json
 {
-  "userId": "6889e8c9116797b6bc5de443",
-  "amount": 350
+"userId": "sampleuser@gmail.com", (email or phone)
+"amount": 350
 }
-
 
 #### ➤ Withdraw Money (User Only)
 
@@ -118,10 +114,9 @@ json
 
 json
 {
-  "agentEmail": "someoneagent@gmail.com",
-  "amount": 50
+"agentID": "someoneagent@gmail.com", (email or phone)
+"amount": 50
 }
-
 
 #### ➤ Send Money to Another User
 
@@ -129,10 +124,9 @@ json
 
 json
 {
-  "recipientEmail": "someone@gmail.com",
-  "amount": 44
+"receiver": "someone@gmail.com", (email or phone)
+"amount": 44
 }
-
 
 ---
 
@@ -164,10 +158,9 @@ json
 
 json
 {
-  "isApproved": true,
-  "isActive": "ACTIVE" // or "BLOCKED"
+"isApproved": true,
+"isActive": "ACTIVE" // or "BLOCKED"
 }
-
 
 ---
 
@@ -183,9 +176,8 @@ json
 
 json
 {
-  "status": "ACTIVE" // or "BLOCKED"
+"status": "ACTIVE" // or "BLOCKED"
 }
-
 
 ---
 
@@ -193,8 +185,7 @@ json
 
 Test all endpoints using **Postman** or **Thunder Client**:
 
-* Use JWT token in headers for protected routes
-
+- Use JWT token in headers for protected routes
 
 ---
 
@@ -204,24 +195,28 @@ DB_URL=
 NODE_ENV =development
 
 ### JWT
+
 JWT_ACCESS_SECRET=
 JWT_ACCESS_EXPIRES=1d
 JWT_REFRESH_SECRET=
 JWT_REFRESH_EXPIRES=
 
 ### BCRYPT
+
 BCRYPT_SALT_ROUND=
 
 ### Admin
+
 ADMIN_EMAIL=
 ADMIN_PASSWORD=
 ADMIN_PHONE=
 
-
 ### Express Session
+
 EXPRESS_SESSION_SECRET=
 
 ### Frontend URL
+
 FRONTEND_URL=
 
 ---
